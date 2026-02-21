@@ -28,7 +28,7 @@ class CyberThreatRetriever:
         doc_type: Optional[str] = None,
         min_severity: Optional[float] = None,
         year: Optional[int] = None,
-    ) -> List[Dict]:
+    ) -> Dict:
 
         raw_results = self.vectorstore.similarity_search_with_score(query, k=k * 3)
 
@@ -50,7 +50,9 @@ class CyberThreatRetriever:
             if year and metadata.get("year") != year:
                 continue
 
-            confidence = round(float(score) * 100, 2)
+            distance = float(score)
+            similarity = 1 / (1 + distance)
+            confidence = round(similarity * 100, 2)
 
             filtered_results.append({
                 "text": doc.page_content,
@@ -61,4 +63,25 @@ class CyberThreatRetriever:
             if len(filtered_results) == k:
                 break
 
-        return filtered_results
+        # No results → Low confidence
+        if not filtered_results:
+            return {
+                "confidence_level": "low",
+                "confidence_score": 0,
+                "results": []
+            }
+
+        top_confidence = filtered_results[0]["confidence"]
+
+        if top_confidence >= 60:
+            level = "high"
+        elif top_confidence >= 45:
+            level = "medium"
+        else:
+            level = "low"
+
+        return {
+            "confidence_level": level,
+            "confidence_score": top_confidence,
+            "results": filtered_results
+        }
