@@ -1,6 +1,24 @@
-rag_env/
-vectorstore/
-data/
+# Backend virtual environment
+backend/rag_env/
+
+# Python cache
 __pycache__/
 *.pyc
-.env
+*.pyo
+
+# Environment variables
+backend/.env
+
+# Vectorstore index (optional but recommended)
+backend/vectorstore/faiss_index/
+
+# Node modules (frontend)
+frontend/node_modules/
+
+# Build folders
+frontend/dist/
+frontend/build/
+
+# OS files
+.DS_Store
+Thumbs.db
