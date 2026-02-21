@@ -6,15 +6,21 @@ retriever = CyberThreatRetriever()
 # Warmup
 retriever.search("test query", k=1)
 
-query = "remote code execution in web applications"
-
 start = time.time()
-results = retriever.search(query, k=5)
+
+results = retriever.search(
+    query="remote code execution",
+    k=5,
+    doc_type="cve",
+    min_severity=9.5,
+    year=2025
+)
+
 end = time.time()
 
 print(f"\nSearch Time: {end - start:.4f} seconds")
 
 for i, r in enumerate(results, 1):
     print(f"\nResult {i}")
-    print("Score:", r["score"])
+    print("Confidence:", r["confidence"], "%")
     print("Metadata:", r["metadata"])
