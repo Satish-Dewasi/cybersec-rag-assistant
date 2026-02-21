@@ -11,6 +11,8 @@ backend/.env
 
 # Vectorstore index (optional but recommended)
 backend/vectorstore/faiss_index/
+backend/data/nvd
+backend/data/mitre
 
 # Node modules (frontend)
 frontend/node_modules/
