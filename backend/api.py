@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from db import engine, Base
+from auth.models import User
+from auth.routes import router as auth_router
+
+Base.metadata.create_all(bind=engine)
 
 from cyber_assistant import CyberThreatIntelligenceAssistant
 
@@ -8,6 +13,8 @@ app = FastAPI(
     title="Cyber Threat Intelligence API",
     version="1.0.0"
 )
+
+app.include_router(auth_router)
 
 # Allow React frontend later
 app.add_middleware(
