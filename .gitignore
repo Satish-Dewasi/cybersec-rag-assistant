@@ -15,7 +15,6 @@ backend/data/nvd
 backend/data/mitre
 
 # Node modules (frontend)
-/frontend
 frontend/node_modules/
 
 # Build folders

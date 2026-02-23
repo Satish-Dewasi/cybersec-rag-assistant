@@ -11,7 +11,7 @@ class CyberThreatIntelligenceAssistant:
     def _extract_citations(self, results):
         citations = []
 
-        for item in results:
+        for item in results[:3]:  # Only consider top 3 results for citations
             metadata = item.get("metadata", {})
             doc_type = metadata.get("type")
 
@@ -44,7 +44,11 @@ class CyberThreatIntelligenceAssistant:
         results = retrieval_response["results"]
 
         # Extract citations BEFORE LLM call
-        citations = self._extract_citations(results)
+        citations = []
+        if confidence_level == "low":
+            citations = []
+        else:
+            citations = self._extract_citations(results)
 
         answer = self.generator.generate(
             query=query,
