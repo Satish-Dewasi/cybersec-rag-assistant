@@ -1,23 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from db import engine, Base
-from auth.models import User
-from auth.routes import router as auth_router
-from chat.models import Chat, Message
-from chat.routes import router as chat_router
-
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException, status
-from db import get_db
-from auth.security import get_current_user
+from typing import Optional
 from datetime import datetime, timezone
 import json
 
+from db import engine, Base, get_db
+from auth.models import User
+from auth.routes import router as auth_router
+from auth.security import get_current_user
+from chat.models import Chat, Message
+from chat.routes import router as chat_router
+from cyber_assistant import CyberThreatIntelligenceAssistant
 
+
+# Create tables
 Base.metadata.create_all(bind=engine)
 
-from cyber_assistant import CyberThreatIntelligenceAssistant
 
 app = FastAPI(
     title="Cyber Threat Intelligence API",
@@ -28,18 +28,22 @@ app.include_router(auth_router)
 app.include_router(chat_router)
 
 
-# Allow React frontend later
+# CORS (restrict in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Lock this down in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 assistant = CyberThreatIntelligenceAssistant()
 
-from typing import Optional
+
+# ----------------------------
+# Request / Response Schemas
+# ----------------------------
 
 class QueryRequest(BaseModel):
     query: str
@@ -53,10 +57,18 @@ class QueryResponse(BaseModel):
     answer: str
 
 
+# ----------------------------
+# Health Check
+# ----------------------------
+
 @app.get("/")
 def health_check():
     return {"status": "API is running"}
 
+
+# ----------------------------
+# Ask Endpoint (Protected)
+# ----------------------------
 
 @app.post("/ask", response_model=QueryResponse)
 def ask_question(
@@ -64,7 +76,9 @@ def ask_question(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # ----------------------------
     # Step 1 — Handle Chat
+    # ----------------------------
     if request.chat_id:
         chat = db.query(Chat).filter(Chat.id == request.chat_id).first()
 
@@ -74,28 +88,31 @@ def ask_question(
                 detail="Chat not found"
             )
     else:
-        # Create new chat
         chat = Chat(
             user_id=current_user.id,
-            title=request.query[:40]
+            title=request.query[:60].strip()
         )
         db.add(chat)
-        db.commit()
-        db.refresh(chat)
+        db.flush()  # get chat.id without full commit
 
-    # Step 2 — Save user message
+    # ----------------------------
+    # Step 2 — Save User Message
+    # ----------------------------
     user_message = Message(
         chat_id=chat.id,
         role="user",
         content=request.query
     )
     db.add(user_message)
-    db.commit()
 
+    # ----------------------------
     # Step 3 — Run RAG
+    # ----------------------------
     response = assistant.ask(request.query)
 
-    # Step 4 — Save assistant message
+    # ----------------------------
+    # Step 4 — Save Assistant Message
+    # ----------------------------
     assistant_message = Message(
         chat_id=chat.id,
         role="assistant",
@@ -108,6 +125,9 @@ def ask_question(
     # Update chat activity
     chat.updated_at = datetime.now(timezone.utc)
 
+    # ----------------------------
+    # Final Commit (Single Transaction)
+    # ----------------------------
     db.commit()
 
     return response
