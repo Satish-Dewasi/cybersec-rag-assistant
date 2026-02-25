@@ -18,8 +18,6 @@ export const useMessages = (chatId, navigate, refreshChats) => {
       try {
         setLoading(true);
         const data = await getMessages(chatId);
-
-        // IMPORTANT: Ensure backend messages include citations + confidence
         setMessages(data.messages || []);
       } catch (err) {
         console.error("Failed to load messages");

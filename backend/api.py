@@ -13,6 +13,7 @@ from auth.security import get_current_user
 from chat.models import Chat, Message
 from chat.routes import router as chat_router
 from cyber_assistant import CyberThreatIntelligenceAssistant
+from generation_service import LLMRateLimitException
 
 
 # Create tables
@@ -108,7 +109,15 @@ def ask_question(
     # ----------------------------
     # Step 3 — Run RAG
     # ----------------------------
-    response = assistant.ask(request.query)
+    try:
+        response = assistant.ask(request.query)
+
+    except LLMRateLimitException as e:
+        db.rollback()  # important: avoid partial DB writes
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e)
+        )
 
     # ----------------------------
     # Step 4 — Save Assistant Message

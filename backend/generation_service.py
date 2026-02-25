@@ -1,7 +1,12 @@
 from typing import List, Dict
 import os
+from urllib import response
 import requests
 from dotenv import load_dotenv
+
+class LLMRateLimitException(Exception):
+    """Raised when the LLM provider hits rate limits."""
+    pass  
 
 
 load_dotenv()
@@ -71,9 +76,18 @@ Generate a clear, structured explanation.
             json=payload
         )
 
+        if response.status_code == 429:
+            raise LLMRateLimitException(
+                "The intelligence processing engine is temporarily rate-limited due to usage caps. "
+                "Please retry shortly. The system will recover automatically."
+            )
+
         if response.status_code != 200:
-            return f"API Error: {response.status_code} - {response.text}"
+            raise Exception("LLM provider failure.")
 
         result = response.json()
 
         return result["candidates"][0]["content"]["parts"][0]["text"]
+    
+
+      
