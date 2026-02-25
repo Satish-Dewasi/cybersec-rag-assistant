@@ -63,6 +63,8 @@ export const useMessages = (chatId, navigate, refreshChats) => {
       const { chat_id, answer, confidence_score, citations } =
         await sendMessage(question, chatId);
 
+      await refreshChats();
+
       if (!chatId) {
         await refreshChats();
         navigate(`/app/${chat_id}`);

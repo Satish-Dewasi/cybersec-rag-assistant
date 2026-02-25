@@ -52,6 +52,7 @@ class QueryRequest(BaseModel):
 
 
 class QueryResponse(BaseModel):
+    chat_id: int
     confidence_level: str
     confidence_score: float
     citations: list[str]
@@ -139,4 +140,7 @@ def ask_question(
     # ----------------------------
     db.commit()
 
-    return response
+    return {
+        "chat_id": chat.id,
+        **response
+    }

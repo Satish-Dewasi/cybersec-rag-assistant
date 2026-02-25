@@ -19,17 +19,31 @@ const MessageItem = React.memo(({ msg }) => {
                 Sources
               </div>
               <div className="flex flex-wrap gap-2">
-                {msg.citations.map((source, index) => (
-                  <a
-                    key={index}
-                    href={source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-blue-400 text-xs rounded-md transition"
-                  >
-                    Source {index + 1}
-                  </a>
-                ))}
+                {msg.citations.map((source, index) => {
+                  let url = "#";
+
+                  // CVE Link
+                  if (source.startsWith("CVE-")) {
+                    url = `https://cve.mitre.org/cgi-bin/cvename.cgi?name=${source}`;
+                  }
+
+                  // MITRE Technique Link
+                  else if (/^T\d{4}(\.\d{3})?$/.test(source)) {
+                    url = `https://attack.mitre.org/techniques/${source}/`;
+                  }
+
+                  return (
+                    <a
+                      key={index}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-blue-400 text-xs rounded-md transition font-mono"
+                    >
+                      {source}
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}
