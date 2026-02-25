@@ -109,7 +109,7 @@ export default function Sidebar({
               <div
                 key={chat.id}
                 onClick={() => navigate(`/app/${chat.id}`)}
-                className={`relative group px-3 py-2 rounded-lg cursor-pointer text-[0.95rem] leading-4 truncate transition-colors duration-200
+                className={`relative group px-3 py-2 capitalize rounded-lg cursor-pointer text-[0.95rem] leading-3 truncate transition-colors duration-200
                   ${
                     Number(chatId) === chat.id
                       ? "bg-[#2a2a2a] text-white"
@@ -178,7 +178,7 @@ export default function Sidebar({
         />
       )}
 
-      <div className="p-3 border-t border-gray-800">
+      <div className="p-3 border-t border-[#2A2A2A]">
         <div
           onClick={handleProfileMenu}
           className="flex items-center gap-3 px-3 py-2 rounded-lg 

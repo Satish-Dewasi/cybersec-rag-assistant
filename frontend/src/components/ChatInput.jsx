@@ -2,7 +2,7 @@ import { SendHorizontal } from "lucide-react";
 
 export default function ChatInput({ input, setInput, onSend, sending }) {
   return (
-    <div className="w-full h-20 border-t border-gray-800 flex items-center justify-center bg-[#212121]">
+    <div className="w-full h-20   flex items-center justify-center bg-[#212121]">
       <div className="w-full max-w-3xl h-14 bg-[#303030] rounded-full flex items-center px-4">
         <input
           type="text"
