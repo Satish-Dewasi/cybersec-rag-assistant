@@ -1,93 +1,129 @@
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import axios from "axios"
-import { useAuth } from "../context/AuthContext"
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
-  const { setUser } = useAuth()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     try {
-      // 1️⃣ Login request
       const res = await axios.post("http://localhost:8000/auth/login", {
         email,
         password,
-      })
+      });
 
-      const token = res.data.access_token
+      const token = res.data.access_token;
+      localStorage.setItem("access_token", token);
 
-      // 2️⃣ Store token
-      localStorage.setItem("access_token", token)
-
-      // 3️⃣ Immediately fetch user data
       const me = await axios.get("http://localhost:8000/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
-      // 4️⃣ Store user in context
-      setUser(me.data)
-
-      // 5️⃣ Navigate to protected area
-      navigate("/app")
-
+      setUser(me.data);
+      navigate("/app");
     } catch (err) {
-      setError("Invalid credentials")
+      setError("Invalid credentials");
     }
-  }
+  };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-950 text-white">
-      <form
-        onSubmit={handleLogin}
-        className="bg-gray-900 p-8 rounded-xl w-96 space-y-4"
-      >
-        <h2 className="text-2xl font-semibold text-center">Login</h2>
+    <div className="relative h-screen w-full overflow-hidden text-white">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center scale-105"
+        style={{
+          backgroundImage: "url('/images/bg.png')",
+        }}
+      />
 
-        {error && (
-          <div className="text-red-500 text-sm text-center">{error}</div>
-        )}
+      {/* Blur Overlay */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-md" />
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-2 bg-gray-800 rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-2 bg-gray-800 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded"
+      {/* Login Card */}
+      {/* Login Card */}
+      <div className="relative z-10 h-full flex items-center justify-center">
+        <form
+          onSubmit={handleLogin}
+          className="bg-[#181818]/95 backdrop-blur-lg 
+               border border-[#2A2A2A] 
+               p-8 rounded-2xl w-96 space-y-5 
+               shadow-[0_0_60px_rgba(0,0,0,0.7)]"
         >
-          Login
-        </button>
+          <h2 className="text-2xl font-semibold text-center tracking-wide">
+            Login
+          </h2>
 
-        <p className="text-sm text-center">
-          Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-400">
-            Sign up
-          </Link>
-        </p>
-      </form>
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-2.5 
+                 bg-[#222222] 
+                 border border-[#2A2A2A] 
+                 rounded-lg 
+                 focus:outline-none 
+                 focus:ring-1 
+                 focus:ring-blue-600 
+                 transition"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-2.5 
+                 bg-[#222222] 
+                 border border-[#2A2A2A] 
+                 rounded-lg 
+                 focus:outline-none 
+                 focus:ring-1 
+                 focus:ring-blue-600 
+                 transition"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            className="w-full 
+                 bg-blue-600 
+                 hover:bg-blue-700 
+                 active:scale-[0.98] 
+                 p-2.5 
+                 rounded-lg 
+                 cursor-pointer
+                 transition-all duration-150"
+          >
+            Login
+          </button>
+
+          <p className="text-sm text-center text-gray-400">
+            Don’t have an account?{" "}
+            <Link
+              to="/signup"
+              className="text-blue-400 hover:text-blue-300 transition"
+            >
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
-  )
+  );
 }
