@@ -56,7 +56,7 @@ export default function Home() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1  flex flex-col overflow-hidden">
         {/* Top Bar */}
         <div className="h-[3.4rem] border-b border-[#2A2A2A]" />
 
@@ -79,7 +79,8 @@ export default function Home() {
         ) : (
           // ================= CHAT MODE =================
           <>
-            <div className="flex-1 overflow-hidden">
+            {/* <div className="flex-1 overflow-hidden"> */}
+            <div className="flex-1 min-h-0">
               <ChatWindow
                 messages={messages}
                 chatId={chatId}

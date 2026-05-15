@@ -43,9 +43,10 @@ export default function ChatWindow({ messages, chatId, forceScroll }) {
   }, [chatId, messages.length]);
 
   return (
+    //className="flex-1  overflow-y-auto px-6 py-8 bg-[#212121]"
     <div
       ref={chatContainerRef}
-      className="flex-1 overflow-y-auto px-6 py-8 bg-[#212121]"
+      className="h-full overflow-y-auto px-6 py-8 bg-[#212121]"
     >
       {!chatId && messages.length === 0 ? (
         <div className="text-gray-500 text-center mt-20 text-sm">
