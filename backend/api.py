@@ -41,7 +41,8 @@ app.add_middleware(
 )
 
 
-assistant = CyberThreatIntelligenceAssistant()
+# assistant = CyberThreatIntelligenceAssistant()
+assistant = None  # Lazy initialization on first request
 
 
 # ----------------------------
@@ -79,7 +80,11 @@ def ask_question(
     request: QueryRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
-):
+):  
+    global assistant
+    if assistant is None:
+        assistant = CyberThreatIntelligenceAssistant()
+
     # ----------------------------
     # Step 1 — Handle Chat
     # ----------------------------
